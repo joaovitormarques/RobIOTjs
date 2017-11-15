@@ -1,0 +1,219 @@
+<resources>
+    <string name="app_name">RobiotJS</string>
+    <string name="project_title">Leds, Displays, Joysticks and Servos Introduction</string>
+    <string name="publish_key">pub–c–bbf07648–4161–4d99–8fe6-f1687915450e</string>
+    <string name="subscribe_key">sub–c–f3ab7140–7a1e–11e7–8cce-0619f8945a4f</string>
+    <string name="pubnub_channel">led</string>
+    <string name="erro_IOT">Ocorreu um erro na comunicação IOT</string>
+    <string name="listing_js">/*----------------Johnny-Five---------------*/\n
+var five = require(\'johnny-five\');\n
+var board = new five.Board();\n
+\n
+/*----------------PubNub Authentication---------------*/\n
+var PubNub = require(\'pubnub\');\n
+var pubnub = new PubNub({\n
+	　subscribe_key : \'sub-c-f3ab7140-7a1e-11e7-8cce-0619f8945a4f\',\n
+	　publish_key   : \'pub-c-bbf07648-4161-4d99-8fe6-f1687915450e\',\n
+	ssl : true\n
+});\n
+\n
+var channel = \'led\';\n
+\n
+\n
+/*----------------Board---------------*/\n
+board.on(\'ready\', function(){\n
+\n
+	/*----------------Seven Segment Led Display---------------*/\n
+	var led = new five.Led(13);\n
+	var led12 = new five.Led(12);\n
+	var led11 = new five.Led(11);\n
+ var led10 = new five.Led(10);\n
+ var led9 = new five.Led(9);\n
+ var led8 = new five.Led(8);\n
+ var led7 = new five.Led(7);\n
+ var led6 = new five.Led(6);\n
+ var led5 = new five.Led(5);\n
+\n
+\n
+ /*----------------Exercise Leds---------------*/\n
+ var led46 = new five.Led(46);\n
+ var led47 = new five.Led(47);\n
+ var led48 = new five.Led(48);\n
+ var led49 = new five.Led(49);\n
+ var led50 = new five.Led(50);\n
+ var led51 = new five.Led(51);\n
+ var led52 = new five.Led(52);\n
+ var led53 = new five.Led(53);\n
+ var leds = new five.Leds([46, 47, 48, 49, 50, 51, 52, 53]);\n
+\n
+ /*--------------------Servo Motor------------------*/\n
+ var servo = new five.Servo({\n
+    id: \"MyServo\",     // User defined id\n
+    pin: 4,           // Which pin is it attached to?\n
+    type: \"continuous\",  // Default: "standard". Use "continuous" for continuous rotation servos\n
+    fps: 100,           // Used to calculate rate of movement between positions\n
+    range: [0, 180],    // Default: 0-180\n
+    startAt: 90,       // Immediately move to a degree\n
+    center: true     // overrides startAt if true and moves the servo to the center of the range\n
+  });\n
+\n
+\n
+ var joystick = new five.Joystick({\n
+  pins: ["A0", "A1"]\n
+});\n
+\n
+ board.repl.inject({\n
+  servo: servo\n
+});\n
+\n
+ servo.center();\n
+\n
+ /*-----------------Joystick------------------*/\n
+ joystick.on(\"change\", function() {\n
+  if(this.y > 0.5){\n
+    servo.max();\n
+  }else servo.center();\n
+  if(-this.y > 0.5){\n
+    servo.min();\n
+  }else servo.center();\n
+});\n
+\n
+ /*----------------PubNub Subscribe---------------*/\n
+ pubnub.subscribe({\n
+   channel: channel,\n
+\n
+   /*----------------YOUR CODE HERE---------------*/\n
+\n
+   message: function(m){\n
+    var count = 0;\n
+    if(m.blink === true){\n
+      for (var i=0 in m.array.length){\n
+        if(m.array[i] == 0){\n
+          leds[i].off();\n
+        } else {\n
+          leds[i].blink(500);\n
+          count++;\n
+        }\n
+      }\n
+      display(count);\n
+      servo.to(m.servo);\n
+    } else {\n
+      for (var i=0 in m.array.length){\n
+        leds[i].stop();\n
+      }\n
+      display(0);\n
+      servo.center();\n
+    }\n
+  },\n
+  error: function(err) {console.log(err);}\n
+});\n
+\n
+\n
+ /*----------------Auxiliary Methods---------------*/\n
+ function turnOffAll(){\n
+   led12.off();\n
+   led11.off();\n
+   led10.off();\n
+   led9.off();\n
+   led8.off();\n
+   led7.off();\n
+   led6.off();\n
+   led5.off();\n
+   led46.off();\n
+   led48.off();\n
+   led47.off();\n
+   led49.off();\n
+   led50.off();\n
+   led51.off();\n
+   led52.off();\n
+   led53.off();\n
+ }\n
+ function display(num){\n
+   turnOffAll();\n
+   switch(num){\n
+    case 0:\n
+    led12.on();\n
+    led11.on();\n
+    led9.on();\n
+    led8.on();\n
+    led7.on();\n
+    led6.on();\n
+    break;\n
+\n
+    case 1:\n
+    led11.on();\n
+    led9.on();\n
+    break;\n
+\n
+    case 2:\n
+    led12.on();\n
+    led11.on();\n
+    led8.on();\n
+    led7.on();\n
+    led5.on();\n
+    break;\n
+\n
+    case 3:\n
+    led12.on();\n
+    led11.on();\n
+    led8.on();\n
+    led9.on();\n
+    led5.on();\n
+    break;\n
+\n
+    case 4:\n
+    led6.on();\n
+    led11.on();\n
+    led5.on();\n
+    led9.on();\n
+    break;\n
+\n
+    case 5:\n
+    led12.on();\n
+    led6.on();\n
+    led8.on();\n
+    led9.on();\n
+    led5.on();\n
+    break;\n
+\n
+    case 6:\n
+    led7.on();\n
+    led6.on();\n
+    led8.on();\n
+    led9.on();\n
+    led5.on();\n
+    led12.on();\n
+    break;\n
+\n
+    case 7:\n
+    led12.on();\n
+    led11.on();\n
+    led9.on();\n
+    break;\n
+\n
+    case 8:\n
+    led12.on();\n
+    led11.on();\n
+    led8.on();\n
+    led9.on();\n
+    led5.on();\n
+    led6.on();\n
+    led7.on();\n
+    break;\n
+\n
+    case 9:\n
+    led12.on();\n
+    led11.on();\n
+    led8.on();\n
+    led9.on();\n
+    led5.on();\n
+    led6.on();\n
+    break;\n
+\n
+    default:\n
+    turnOffAll();\n
+  }\n
+}\n
+});
+</string>
+</resources>
