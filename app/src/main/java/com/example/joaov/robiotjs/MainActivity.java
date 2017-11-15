@@ -3,6 +3,8 @@ package com.example.joaov.robiotjs;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 import com.pubnub.api.Callback;
 import com.pubnub.api.Pubnub;
@@ -18,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Pubnub pubnub;
     private MainActivity parent;
+    private Button runButton;
 
 
     @Override
@@ -29,13 +32,19 @@ public class MainActivity extends AppCompatActivity {
         CodeView codeView = (CodeView) findViewById(R.id.code_view);
         codeView.setCode(getString(R.string.listing_js), "js");
         codeView.getOptions().withTheme(ColorTheme.MONOKAI);
+        runButton = (Button) findViewById(R.id.run_button);
 
         pubnub = new Pubnub(getString(R.string.publish_key), getString(R.string.subscribe_key));
         try {
             pubnub.subscribe(getString(R.string.pubnub_channel), new Callback() {
                 @Override
                 public void connectCallback(String channel, Object message) {
-                    pubnub.publish(getString(R.string.pubnub_channel), "Hello from the PubNub Java SDK", new Callback() {});
+                    pubnub.publish(getString(R.string.pubnub_channel), getString(R.string.hello_pubNub), new Callback() {});
+                    parent.runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(parent.getBaseContext(), R.string.sucess_IOT, Toast.LENGTH_LONG).show();
+                        }
+                    });
                 }
 
                 @Override
@@ -59,21 +68,29 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void errorCallback(String channel, PubnubError error) {
-                    parent.runOnUiThread(new Runnable() {
-                        public void run() {
-                            Toast.makeText(parent.getBaseContext(), "Hello", Toast.LENGTH_LONG).show();
-                        }
-                    });
+                    System.out.println("SUBSCRIBE : " + channel + " : "
+                            + error.getClass() + " : " + error.toString());
                 }
         });
         }catch (PubnubException e) {
             Log.e(TAG, e.toString());
             parent.runOnUiThread(new Runnable() {
                 public void run() {
-                    Toast.makeText(parent.getBaseContext(), "Hello", Toast.LENGTH_LONG).show();
+                    Toast.makeText(parent.getBaseContext(), R.string.erro_IOT, Toast.LENGTH_LONG).show();
                 }
             });
         }
+
+        runButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                parent.runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(parent.getBaseContext(), R.string.submit_code, Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        });
     }
 
     @Override
