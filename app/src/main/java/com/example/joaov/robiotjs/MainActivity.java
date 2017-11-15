@@ -11,6 +11,7 @@ import com.pubnub.api.PubnubException;
 
 import io.github.kbiakov.codeview.CodeView;
 import io.github.kbiakov.codeview.classifier.CodeProcessor;
+import io.github.kbiakov.codeview.highlight.ColorTheme;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
         CodeProcessor.init(this);
         CodeView codeView = (CodeView) findViewById(R.id.code_view);
         codeView.setCode(getString(R.string.listing_js), "js");
+        codeView.getOptions().withTheme(ColorTheme.MONOKAI);
 
         pubnub = new Pubnub(getString(R.string.publish_key), getString(R.string.subscribe_key));
         try {
